@@ -50,7 +50,7 @@ export const Finance = () => {
                   <td className="py-4 px-6 font-medium text-[#212529]">{invoice.id}</td>
                   <td className="py-4 px-6 text-gray-500">{new Date(invoice.date).toLocaleDateString()}</td>
                   <td className="py-4 px-6 text-gray-500">{new Date(invoice.dueDate).toLocaleDateString()}</td>
-                  <td className="py-4 px-6 font-medium">${invoice.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="py-4 px-6 font-medium">{invoice.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })} DT</td>
                   <td className="py-4 px-6">
                     <Badge variant={invoice.status === 'paid' ? 'success' : 'danger'} className="capitalize">
                       {invoice.status}

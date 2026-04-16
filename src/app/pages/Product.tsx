@@ -1,18 +1,77 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { motion } from 'motion/react';
-import { ShoppingCart, Lock, ArrowLeft, CheckCircle2, AlertTriangle, Truck, FileText } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ShoppingCart, Lock, ArrowLeft, CheckCircle2, AlertTriangle, Truck, FileText, ChevronDown } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { MOCK_PRODUCTS } from '../data/mock';
 import { Button, Badge, Card } from '../components/ui';
+
+const PrestigeDropdown = ({ label, options, selected, onSelect }: { label: string, options: string[], selected: string, onSelect: (v: string) => void }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">{label}</p>
+      <div 
+        className="w-full bg-white border border-gray-200 hover:border-[#FC4F00] transition-colors rounded-xl p-4 flex justify-between items-center cursor-pointer shadow-sm"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="font-semibold text-[#212529] text-lg">{selected}</span>
+        <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3, ease: "easeInOut" }}>
+          <ChevronDown className="w-5 h-5 text-gray-400" />
+        </motion.div>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 shadow-2xl rounded-xl z-50 overflow-hidden"
+          >
+            {options.map((opt, i) => (
+              <motion.div
+                key={opt}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className={`px-4 py-3 cursor-pointer transition-colors ${selected === opt ? 'bg-[#f4e9da]/30 text-[#FC4F00] font-bold' : 'hover:bg-gray-50 text-gray-600 font-medium'}`}
+                onClick={() => {
+                  onSelect(opt);
+                  setIsOpen(false);
+                }}
+              >
+                {opt}
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export const Product = () => {
   const { id } = useParams();
   const { isAuth, openLoginModal, addToCart } = useAppContext();
   const product = MOCK_PRODUCTS.find(p => p.id === id);
 
-  const [qty, setQty] = React.useState(1);
-  const [added, setAdded] = React.useState(false);
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+
+  // Initialize selected options on mount
+  React.useEffect(() => {
+    if (product && product.options) {
+      const initial: Record<string, string> = {};
+      Object.entries(product.options).forEach(([key, values]) => {
+        initial[key] = (values as string[])[0];
+      });
+      setSelectedOptions(initial);
+    }
+  }, [product]);
 
   if (!product) {
     return (
@@ -24,35 +83,24 @@ export const Product = () => {
   }
 
   const handleAddToCart = () => {
+    // Ideally we would pass the selected options as well
     addToCart(product.id, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500 pb-12">
-      <Link to="/" className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-[#212529] transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+    <div className="max-w-7xl mx-auto space-y-12 animate-in slide-in-from-bottom-4 duration-500 pb-20">
+      <Link to={product.familyId ? `/family/${product.familyId}` : "/"} className="inline-flex items-center text-sm font-bold text-gray-500 hover:text-[#212529] transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 mb-4">
         <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Materials
+        Back to {product.category || "Materials"}
       </Link>
 
+      {/* TOP SECTION: Description/Pricing (Left) + Picture (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="relative group">
-          <div className="aspect-[4/3] lg:aspect-square bg-gray-100 rounded-3xl overflow-hidden shadow-lg border border-gray-200/50">
-            <img 
-              src={product.image} 
-              alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-          </div>
-          <div className="absolute top-4 right-4 flex space-x-2">
-            <button className="bg-white/90 backdrop-blur p-3 rounded-full shadow-sm hover:bg-white text-[#212529] transition-colors" title="Download Spec Sheet">
-              <FileText className="w-5 h-5" />
-            </button>
-          </div>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col h-full">
+        
+        {/* Left Column: Details & Pricing */}
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col h-full">
           <div>
             <Badge variant="premium" className="mb-5 text-sm px-4 py-1">{product.category}</Badge>
             <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-[#212529] leading-tight mb-4">{product.name}</h1>
@@ -71,7 +119,7 @@ export const Product = () => {
                 return (
                   <li key={i} className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 last:border-0">
                     <span className="text-gray-500 font-medium sm:w-1/3">{label}</span>
-                    <span className="text-[#212529] font-bold">{value}</span>
+                    <span className="text-[#212529] font-bold">{value || spec}</span>
                   </li>
                 );
               })}
@@ -87,8 +135,8 @@ export const Product = () => {
                       <Lock className="w-3 h-3 mr-1.5" /> Client Contract Price
                     </p>
                     <div className="flex items-baseline space-x-2">
-                      <span className="text-5xl font-black text-[#212529] tracking-tight">${product.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                      <span className="text-gray-500 font-medium">/ sheet</span>
+                      <span className="text-5xl font-black text-[#212529] tracking-tight">{product.price.toLocaleString(undefined, { minimumFractionDigits: 2 })} DT</span>
+                      <span className="text-gray-500 font-medium">/ unit</span>
                     </div>
                   </div>
                   <div className="text-left sm:text-right bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -145,7 +193,6 @@ export const Product = () => {
                 onClick={openLoginModal}
               >
                 <div className="absolute inset-0 bg-[#f4e9da]/5 backdrop-blur-[2px] z-0 pointer-events-none"></div>
-                
                 <div className="relative z-10 max-w-md w-full">
                   <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500 backdrop-blur-md">
                     <Lock className="w-8 h-8 text-[#f4e9da]" />
@@ -154,7 +201,6 @@ export const Product = () => {
                   <p className="text-[#f4e9da]/80 mb-8 leading-relaxed font-medium text-lg">
                     Log in to your B2B account to view negotiated rates, live inventory, and place bulk orders instantly.
                   </p>
-                  
                   <Button variant="premium" className="w-full h-14 text-lg font-bold bg-[#f4e9da] text-[#212529] hover:bg-white border-none">
                     Log in to Access
                   </Button>
@@ -163,7 +209,51 @@ export const Product = () => {
             )}
           </div>
         </motion.div>
+
+        {/* Right Column: Picture */}
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="relative group flex items-start">
+          <div className="aspect-[4/3] lg:aspect-square w-full bg-gray-100 rounded-3xl overflow-hidden shadow-2xl border border-gray-200/50 sticky top-24">
+            <img 
+              src={product.image} 
+              alt={product.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute top-4 right-4 flex space-x-2">
+              <button className="bg-white/90 backdrop-blur p-3 rounded-full shadow-sm hover:bg-white text-[#212529] transition-colors" title="Download Spec Sheet">
+                <FileText className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </motion.div>
       </div>
+
+      {/* BOTTOM SECTION: Filters */}
+      {product.options && Object.keys(product.options).length > 0 && (
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="bg-gray-50 p-8 lg:p-12 rounded-3xl border border-gray-200 shadow-inner mt-12"
+        >
+          <div className="mb-8">
+            <h2 className="text-3xl font-black text-[#212529] mb-3">Configure Your Item</h2>
+            <p className="text-gray-500 text-lg">Select dimensions, colors, and materials to match your exact specifications.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            {Object.entries(product.options).map(([key, optionsList]) => (
+              <PrestigeDropdown 
+                key={key}
+                label={key}
+                options={optionsList as string[]}
+                selected={selectedOptions[key] || (optionsList as string[])[0]}
+                onSelect={(val) => setSelectedOptions(prev => ({ ...prev, [key]: val }))}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
+
     </div>
   );
 };

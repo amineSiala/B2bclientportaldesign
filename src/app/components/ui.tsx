@@ -38,7 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
-export const Badge = ({ children, variant = "default", className }: { children: React.ReactNode, variant?: "default"|"success"|"warning"|"danger"|"premium", className?: string }) => {
+export const Badge = ({ children, variant = "default", className }: { children: React.ReactNode, variant?: "default"|"success"|"warning"|"danger"|"premium"|"destructive", className?: string }) => {
   return (
     <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors", 
     {
@@ -47,6 +47,7 @@ export const Badge = ({ children, variant = "default", className }: { children: 
       "bg-green-100 text-green-800": variant === "success",
       "bg-orange-100 text-orange-800": variant === "warning",
       "bg-red-100 text-red-800": variant === "danger",
+      "bg-red-100 text-red-800": variant === "destructive",
     }, className)}>
       {children}
     </span>

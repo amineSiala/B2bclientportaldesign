@@ -64,7 +64,7 @@ export const Cart = () => {
                     <div className="flex-1 min-w-0">
                       <Link to={`/product/${item.productId}`} className="font-bold text-lg text-[#212529] hover:text-[#FC4F00] transition-colors line-clamp-1">{item.product.name}</Link>
                       <p className="text-sm text-gray-500 mt-1">Ref: {item.product.id.toUpperCase()}</p>
-                      <p className="font-semibold text-[#FC4F00] mt-2">${item.product.price.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-xs text-gray-400 font-normal">/ unit</span></p>
+                      <p className="font-semibold text-[#FC4F00] mt-2">{item.product.price.toLocaleString(undefined, { minimumFractionDigits: 2 })} DT <span className="text-xs text-gray-400 font-normal">/ unit</span></p>
                     </div>
 
                     <div className="flex items-center space-x-6 w-full sm:w-auto justify-between sm:justify-end">
@@ -82,7 +82,7 @@ export const Cart = () => {
                       </div>
                       
                       <div className="text-right min-w-[100px]">
-                        <p className="font-bold text-[#212529]">${(item.product.price * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                        <p className="font-bold text-[#212529]">{(item.product.price * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })} DT</p>
                       </div>
 
                       <button 
@@ -107,11 +107,11 @@ export const Cart = () => {
             <div className="space-y-4 text-sm mb-6">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal (Excl. Tax)</span>
-                <span className="font-medium text-[#212529]">${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span className="font-medium text-[#212529]">{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })} DT</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Estimated Tax (20%)</span>
-                <span className="font-medium text-[#212529]">${tax.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span className="font-medium text-[#212529]">{tax.toLocaleString(undefined, { minimumFractionDigits: 2 })} DT</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
@@ -126,9 +126,9 @@ export const Cart = () => {
                 <span className="font-bold text-[#212529]">Total</span>
                 <div className="text-right">
                   <span className="text-3xl font-extrabold text-[#FC4F00] block leading-none mb-1">
-                    ${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {total.toLocaleString(undefined, { minimumFractionDigits: 2 })} DT
                   </span>
-                  <span className="text-xs text-gray-400 font-medium">USD, Incl. Tax</span>
+                  <span className="text-xs text-gray-400 font-medium">TND, Incl. Tax</span>
                 </div>
               </div>
             </div>

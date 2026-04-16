@@ -50,7 +50,7 @@ export const Orders = () => {
                   <td className="py-4 px-6 font-medium text-[#212529]">{order.id}</td>
                   <td className="py-4 px-6 text-gray-500">{new Date(order.date).toLocaleDateString()}</td>
                   <td className="py-4 px-6 text-gray-500">{order.items} products</td>
-                  <td className="py-4 px-6 font-medium">${order.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="py-4 px-6 font-medium">{order.total.toLocaleString(undefined, { minimumFractionDigits: 2 })} DT</td>
                   <td className="py-4 px-6">
                     <Badge variant={order.status === 'delivered' ? 'success' : order.status === 'validated' ? 'default' : 'warning'} className="capitalize">
                       {order.status}
